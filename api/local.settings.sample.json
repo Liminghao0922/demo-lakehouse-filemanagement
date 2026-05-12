@@ -4,6 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "KEY_VAULT_URL": "https://<your-key-vault-name>.vault.azure.net/",
+    "USER_SP_MAPPING_SECRET_NAME": "user-sp-mapping",
     "USER_SP_MAPPING_FILE": "config/user_sp_mapping.json",
     "ALLOW_LOCAL_DEV_AUTH": "true",
     "DEV_USER_UPN": "user01@contoso.com"

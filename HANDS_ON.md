@@ -181,6 +181,21 @@ az keyvault secret show --vault-name "kv-onelake-demo" --name "sp-user01-onelake
 
 ## 5. Configure User Mapping
 
+Recommended for deployment: store mapping JSON in Key Vault and use local file as fallback for development.
+
+1. Create a Key Vault secret for user mapping:
+
+```bash
+az keyvault secret set --vault-name "kv-onelake-demo" --name "user-sp-mapping" --value '{
+  "users": {
+    "user01@contoso.com": "sp-user01-onelake",
+    "user02@contoso.com": "sp-user02-onelake"
+  }
+}'
+```
+
+2. (Optional local fallback) Edit `api/config/user_sp_mapping.json`:
+
 Edit `api/config/user_sp_mapping.json` to map Entra ID users to Key Vault secret names:
 
 ```json
@@ -196,6 +211,7 @@ Notes:
 - The mapping is UPN -> SP secret name only.
 - Folder-level permissions are already configured in Fabric OneLake UI (step 3).
 - The app will enforce these OneLake permissions at runtime.
+- Runtime order is: Key Vault mapping secret -> local file fallback.
 
 ## 6. Local Run
 
@@ -225,7 +241,9 @@ copy api\local.settings.sample.json api\local.settings.json
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "KEY_VAULT_URL": "https://kv-onelake-demo.vault.azure.net/",
+    "USER_SP_MAPPING_SECRET_NAME": "user-sp-mapping",
     "USER_SP_MAPPING_FILE": "config/user_sp_mapping.json",
+    "USER_SP_MAPPING_ALLOW_FILE_FALLBACK": "true",
     "ALLOW_LOCAL_DEV_AUTH": "true",
     "DEV_USER_UPN": "user01@contoso.com"
   }
@@ -314,6 +332,10 @@ az staticwebapp create \
 2. In Azure Portal, go to your Static Web App → **Settings** → **Configuration**:
    - Add the following app settings:
      - `KEY_VAULT_URL`: `https://kv-onelake-demo.vault.azure.net/`
+     - `USER_SP_MAPPING_SECRET_NAME`: `user-sp-mapping`
+     - `USER_SP_MAPPING_ALLOW_FILE_FALLBACK`: `false`
+
+   Optional local-style fallback in cloud:
      - `USER_SP_MAPPING_FILE`: `config/user_sp_mapping.json`
 
 3. Configure the app's managed identity to access Key Vault:
@@ -357,6 +379,7 @@ Once deployment is complete, you can access your app at the generated URL (e.g.,
 - **403 Forbidden**: Ensure the managed identity has Secret Get/List permissions on Key Vault.
 - **Unauthorized (Entra ID)**: Verify the Entra ID app registration is correctly configured in Static Web Apps.
 - **"Key Vault not found"**: Ensure `KEY_VAULT_URL` is correctly set in app settings.
+- **"Failed to load user mapping configuration"**: Verify `USER_SP_MAPPING_SECRET_NAME` exists and contains valid JSON.
 
 ## 8. Validation Checklist
 

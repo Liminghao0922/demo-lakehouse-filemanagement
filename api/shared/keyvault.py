@@ -21,7 +21,7 @@ class KeyVaultConfigError(Exception):
     pass
 
 
-def load_service_principal_config(secret_name: str) -> ServicePrincipalConfig:
+def load_json_secret(secret_name: str) -> dict:
     key_vault_url = os.getenv("KEY_VAULT_URL")
     if not key_vault_url:
         raise KeyVaultConfigError("Missing KEY_VAULT_URL environment variable.")
@@ -30,11 +30,15 @@ def load_service_principal_config(secret_name: str) -> ServicePrincipalConfig:
     secret_bundle = secret_client.get_secret(secret_name)
 
     try:
-        payload = json.loads(secret_bundle.value)
+        return json.loads(secret_bundle.value)
     except json.JSONDecodeError as exc:
         raise KeyVaultConfigError(
             f"Secret '{secret_name}' must contain a JSON payload."
         ) from exc
+
+
+def load_service_principal_config(secret_name: str) -> ServicePrincipalConfig:
+    payload = load_json_secret(secret_name)
 
     workspace_name = payload["workspace_name"]
     lakehouse_name = payload["lakehouse_name"]

@@ -10,7 +10,7 @@ It uses:
 - Azure Static Web Apps for hosting frontend + Python API
 - React 18.2 + Vite 5.0 + React Router 6.20 for frontend SPA
 - @azure/msal-react 2.0 for Entra ID authentication UI flow
-- A local mapping file for `user -> service principal`
+- User-to-service-principal mapping from Key Vault (with local file fallback)
 - Azure Key Vault for service principal secret details
 - OneLake file operations through the official OneLake-supported Python SDK pattern (`azure-storage-file-datalake` + Entra auth)
 
@@ -19,7 +19,7 @@ After sign-in, the app maps the user to a specific service principal and folder,
 ## 2. Implemented Features
 
 - Entra ID sign-in / sign-out
-- User-to-service-principal mapping from config file (UPN -> SP secret name)
+- User-to-service-principal mapping from Key Vault secret or local config file (UPN -> SP secret name)
 - Service principal details loaded from Azure Key Vault
 - Folder-level access control enforced by Fabric OneLake permissions (not code)
 - File list in folder: name, modified time, type, size
@@ -31,7 +31,7 @@ After sign-in, the app maps the user to a specific service principal and folder,
 
 - Frontend: `frontend/` (React + Vite)
 - Backend API: `api/` (Python Azure Functions)
-- Mapping source: `api/config/user_sp_mapping.json`
+- Mapping source: Key Vault secret `USER_SP_MAPPING_SECRET_NAME` (fallback: `api/config/user_sp_mapping.json`)
 - Secrets source: Azure Key Vault secrets (JSON payload)
 
 ## 4. Logical Flow Diagram
@@ -54,13 +54,23 @@ Open the draw.io file in VS Code with the Draw.io extension to edit the architec
 1. User accesses the frontend hosted on Azure Static Web Apps.
 2. User authentication is handled through Microsoft Entra ID.
 3. Frontend calls Azure Functions APIs for file operations.
-4. Function app reads user-to-service-principal mapping from local config.
+4. Function app reads user-to-service-principal mapping from Key Vault secret (or local config fallback).
 5. Function app fetches service principal credentials from Azure Key Vault.
 6. Function app calls Fabric Lakehouse (OneLake) via SDK using mapped SP credentials.
 7. OneLake enforces folder-level permissions and returns success or permission denied.
 8. Function app returns the result to frontend for display.
 
-## 5. User Mapping File
+## 5. User Mapping Configuration
+
+Primary source: Key Vault secret name set in `USER_SP_MAPPING_SECRET_NAME`.
+
+Fallback source: local file `api/config/user_sp_mapping.json`.
+
+If both are configured, the app uses Key Vault first and falls back to file only when Key Vault mapping cannot be loaded.
+
+Optional behavior control:
+
+- `USER_SP_MAPPING_ALLOW_FILE_FALLBACK=true|false` (default: `true`)
 
 File: `api/config/user_sp_mapping.json`
 
