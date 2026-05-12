@@ -1,0 +1,6 @@
+{
+  "users": {
+    "user01@contoso.com": "sp-user01-onelake",
+    "user02@contoso.com": "sp-user02-onelake"
+  }
+}

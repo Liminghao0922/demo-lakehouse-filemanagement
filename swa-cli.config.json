@@ -1,0 +1,9 @@
+{
+  "configurations": {
+    "onelake-demo": {
+      "appLocation": "frontend",
+      "apiLocation": "api",
+      "outputLocation": "dist"
+    }
+  }
+}

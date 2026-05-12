@@ -1,0 +1,79 @@
+<mxfile host="65bd71144e">
+    <diagram id="p1" name="Page-1">
+        <mxGraphModel dx="1404" dy="760" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="Azure Architecture - OneLake File Management" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#0f172a;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="24" width="620" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="swaIcon" value="Azure Static Web" style="image;aspect=fixed;html=1;image=img/lib/azure2/preview/Static_Apps.svg;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="340" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="funcIcon" value="Azure Functions" style="image;aspect=fixed;html=1;image=img/lib/azure2/compute/Function_Apps.svg;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="340" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="kvIcon" value="Azure Key Vault" style="image;aspect=fixed;html=1;image=img/lib/azure2/security/Key_Vaults.svg;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="150" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="fabricIcon" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 700; text-wrap-mode: wrap; background-color: rgb(251, 251, 251);&quot;&gt;Fabric Lakehouse (OneLake)&lt;/span&gt;" style="image;aspect=fixed;html=1;image=img/lib/azure2/analytics/Data_Lake_Analytics.svg;" parent="1" vertex="1">
+                    <mxGeometry x="980" y="340" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="entraIcon" value="Entra ID" style="image;aspect=fixed;html=1;image=img/lib/azure2/identity/Azure_Active_Directory.svg;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="150" width="56" height="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="mapping" value="User-SP Mapping&#xa;api/config/user_sp_mapping.json" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=#f1f5f9;strokeColor=#334155;" parent="1" vertex="1">
+                    <mxGeometry x="485" y="588" width="230" height="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" value="1. Open app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;" parent="1" target="swaIcon" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="150" y="372" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e2" value="3. Call /api/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;exitY=0.60;entryY=0.60;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="344" y="361.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="560" y="361.9999999999999" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e3" value="5. Get SP secret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="624" y="361.0000000000001" as="sourcePoint"/>
+                        <mxPoint x="790" y="239" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e4" value="6. OneLake SDK call" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;exitY=0.50;entryY=0.50;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="624" y="377.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="980" y="377.9999999999999" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e5" value="2. Sign-in" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;dashed=1;strokeColor=#be185d;" parent="1" source="swaIcon" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="308" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e6" value="4. Resolve user -&gt; SP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;dashed=1;strokeColor=#334155;" parent="1" target="mapping" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="600" y="430" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e7" value="7. Permission result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;dashed=1;strokeColor=#16a34a;exitY=0.80;entryY=0.80;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="976" y="392.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="620" y="392.9999999999999" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e8" value="8. Return result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;dashed=1;strokeColor=#0284c7;exitY=0.30;entryY=0.30;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="560" y="388.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="344" y="388.9999999999999" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="4" value="User" style="points=[[0.35,0,0],[0.98,0.51,0],[1,0.71,0],[0.67,1,0],[0,0.795,0],[0,0.65,0]];verticalLabelPosition=bottom;sketch=0;html=1;verticalAlign=top;aspect=fixed;align=center;pointerEvents=1;shape=mxgraph.cisco19.user;fillColor=#005073;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="340" width="50" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
