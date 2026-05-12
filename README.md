@@ -7,7 +7,7 @@ This project is a demo app for folder-level permission management on Microsoft F
 It uses:
 
 - Microsoft Entra ID for user sign-in
-- Azure Static Web Apps for hosting frontend + Python API
+- Azure Static Web Apps for hosting frontend and a linked Azure Functions backend
 - React 18.2 + Vite 5.0 + React Router 6.20 for frontend SPA
 - @azure/msal-react 2.0 for Entra ID authentication UI flow
 - User-to-service-principal mapping from Key Vault (with local file fallback)
@@ -30,7 +30,7 @@ After sign-in, the app maps the user to a specific service principal and folder,
 ## 3. High-Level Architecture
 
 - Frontend: `frontend/` (React + Vite)
-- Backend API: `api/` (Python Azure Functions)
+- Backend API: `api/` (Python Azure Functions, deployed separately and linked to SWA)
 - Mapping source: Key Vault secret `USER_SP_MAPPING_SECRET_NAME` (fallback: `api/config/user_sp_mapping.json`)
 - Secrets source: Azure Key Vault secrets (JSON payload)
 
@@ -38,7 +38,7 @@ After sign-in, the app maps the user to a specific service principal and folder,
 
 This architecture reflects the current implementation and Azure service chain:
 
-`User -> Azure Static Web Apps -> Azure Functions -> Azure Key Vault -> Microsoft Fabric Lakehouse (OneLake)`
+`User -> Azure Static Web Apps -> Linked Azure Functions -> Azure Key Vault -> Microsoft Fabric Lakehouse (OneLake)`
 
 Rendered diagram (PNG):
 
@@ -53,7 +53,7 @@ Open the draw.io file in VS Code with the Draw.io extension to edit the architec
 **Key Flow:**
 1. User accesses the frontend hosted on Azure Static Web Apps.
 2. User authentication is handled through Microsoft Entra ID.
-3. Frontend calls Azure Functions APIs for file operations.
+3. Frontend calls the `/api` route on Azure Static Web Apps.
 4. Function app reads user-to-service-principal mapping from Key Vault secret (or local config fallback).
 5. Function app fetches service principal credentials from Azure Key Vault.
 6. Function app calls Fabric Lakehouse (OneLake) via SDK using mapped SP credentials.
@@ -185,3 +185,18 @@ swa start http://localhost:5173 --api-location api --app-location frontend
 - Use Key Vault access control and least privilege.
 - Restrict Key Vault access to the app's managed identity in cloud.
 - Always configure folder permissions in Fabric OneLake UI for clear governance and compliance.
+
+## 11. Deployment Model
+
+Production uses a linked API model:
+
+1. Deploy the frontend to Azure Static Web Apps.
+2. Deploy the backend to a separate Azure Functions app.
+3. Link the Functions app in the Static Web Apps portal under **APIs**.
+4. Keep `/api/*` requests in the frontend; SWA proxies them to the linked backend.
+
+Important notes:
+
+- The linked Functions app must remain publicly reachable by SWA.
+- Set `api_location` to an empty string in the SWA workflow when using BYO Functions.
+- PR preview environments do not support linked backend APIs.

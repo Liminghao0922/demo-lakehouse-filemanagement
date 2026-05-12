@@ -311,7 +311,7 @@ Local server running at http://localhost:4280
 - **"Unauthorized"**: Ensure `ALLOW_LOCAL_DEV_AUTH=true` and `DEV_USER_UPN` is set.
 - **Key Vault authentication error**: Run `az login` to ensure your CLI is authenticated.
 
-## 7. Deploy to Azure Static Web Apps
+## 7. Deploy to Azure Static Web Apps + Linked Azure Functions Backend
 
 ### Steps
 
@@ -325,26 +325,36 @@ az staticwebapp create \
   --source "https://github.com/<your-github-username>/<repo-name>" \
   --branch "main" \
   --app-location "frontend" \
-  --api-location "api" \
+  --api-location "" \
   --output-location "dist"
 ```
 
-2. In Azure Portal, go to your Static Web App → **Settings** → **Configuration**:
-   - Add the following app settings:
-     - `KEY_VAULT_URL`: `https://kv-onelake-demo.vault.azure.net/`
-     - `USER_SP_MAPPING_SECRET_NAME`: `user-sp-mapping`
-     - `USER_SP_MAPPING_ALLOW_FILE_FALLBACK`: `false`
+2. Deploy the backend as a separate Azure Functions app.
+
+3. In Azure Portal, go to your Static Web App → **APIs**:
+
+   - Under **Production**, select **Link**.
+   - Choose **Function App**.
+   - Select your Azure Functions app.
+   - Confirm the link.
+
+4. In Azure Portal, go to your Functions app → **Identity** and enable managed identity.
+
+5. In Azure Portal, go to your Functions app → **Configuration** and add:
+   - `KEY_VAULT_URL`: `https://kv-onelake-demo.vault.azure.net/`
+   - `USER_SP_MAPPING_SECRET_NAME`: `user-sp-mapping`
+   - `USER_SP_MAPPING_ALLOW_FILE_FALLBACK`: `false`
 
    Optional local-style fallback in cloud:
-     - `USER_SP_MAPPING_FILE`: `config/user_sp_mapping.json`
+   - `USER_SP_MAPPING_FILE`: `config/user_sp_mapping.json`
 
-3. Configure the app's managed identity to access Key Vault:
+6. Grant the Functions app's managed identity access to Key Vault:
 
 ```bash
-# Get the Static Web App's managed identity (principal ID)
-PRINCIPAL_ID=$(az staticwebapp show --name "swa-onelake-demo" \
+# Get the Functions app's managed identity (principal ID)
+PRINCIPAL_ID=$(az functionapp identity show --name "<your-functions-app>" \
   --resource-group "<your-resource-group>" \
-  --query "identity.principalId" --output tsv)
+  --query "principalId" --output tsv)
 
 # Grant Key Vault secret read access
 az keyvault set-policy --name "kv-onelake-demo" \
@@ -352,20 +362,22 @@ az keyvault set-policy --name "kv-onelake-demo" \
   --secret-permissions get list
 ```
 
-4. Configure Entra ID authentication in Static Web Apps:
+7. Configure Entra ID authentication in Static Web Apps:
 
    - In Azure Portal → **Settings** → **Authentication**
    - Click **Add** → **Entra ID**
    - Fill in app registration details (or create a new one)
    - Set **Restricted access** to **Require authentication**
 
-5. Configure GitHub deployment (if using GitHub):
+8. Configure GitHub deployment (if using GitHub):
 
    - Push your code to GitHub
    - In Azure Portal → **Deployment** → Connect your GitHub repo
-   - The provided GitHub Actions workflow (`.github/workflows/azure-static-web-apps.yml`) will trigger automatically
+  - The provided GitHub Actions workflows will trigger automatically:
+    - `.github/workflows/azure-static-web-apps.yml`
+    - `.github/workflows/azure-functions-backend.yml`
 
-6. Wait for deployment to complete and verify:
+9. Wait for deployment to complete and verify:
 
 ```bash
 az staticwebapp show --name "swa-onelake-demo" \
@@ -380,6 +392,7 @@ Once deployment is complete, you can access your app at the generated URL (e.g.,
 - **Unauthorized (Entra ID)**: Verify the Entra ID app registration is correctly configured in Static Web Apps.
 - **"Key Vault not found"**: Ensure `KEY_VAULT_URL` is correctly set in app settings.
 - **"Failed to load user mapping configuration"**: Verify `USER_SP_MAPPING_SECRET_NAME` exists and contains valid JSON.
+- **API 404 from SWA**: Confirm the Functions app is linked under SWA → APIs and the backend is publicly reachable.
 
 ## 8. Validation Checklist
 

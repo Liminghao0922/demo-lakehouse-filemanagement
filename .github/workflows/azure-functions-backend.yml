@@ -1,0 +1,24 @@
+name: Azure Functions Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - ".github/workflows/azure-functions-backend.yml"
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Azure Functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Azure Functions App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          package: api
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
