@@ -9,16 +9,46 @@ on:
       - ".github/workflows/azure-functions-backend.yml"
   workflow_dispatch:
 
-jobs:
-  build_and_deploy_job:
-    runs-on: ubuntu-latest
-    name: Build and Deploy Azure Functions
-    steps:
-      - uses: actions/checkout@v4
+env:
+  PYTHON_VERSION: '3.11'
 
-      - name: Deploy Azure Functions App
-        uses: Azure/functions-action@v1
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python version
+        uses: actions/setup-python@v5
         with:
-          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Create and start virtual environment
+        working-directory: api
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install dependencies
+        working-directory: api
+        run: pip install -r requirements.txt
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_BA8970BAA2BA48D1BD6178F80CD37685 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E3D3ADB8EFEE483A9D70C8452C15E901 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_35160BC26DCB4DCB8D0B089172A38254 }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        id: deploy-to-function
+        with:
+          app-name: func-onelake-demo
+          slot-name: Production
           package: api
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
